@@ -4,25 +4,25 @@ if (!defined('_PS_VERSION_')) {
 	exit;
 }
 
-require_once _PS_MODULE_DIR_.'lemonway/services/LemonWayKit.php';
-require_once _PS_MODULE_DIR_.'lemonway/classes/Wallet.php';
-require_once _PS_MODULE_DIR_.'lemonwaymkt/classes/WalletTransaction.php';
+require_once _PS_MODULE_DIR_.'payoh/services/PayohKit.php';
+require_once _PS_MODULE_DIR_.'payoh/classes/Wallet.php';
+require_once _PS_MODULE_DIR_.'payohmkt/classes/WalletTransaction.php';
 require_once _PS_MODULE_DIR_.'marketplace/classes/MarketplaceClassInclude.php';
-class Lemonwaymkt extends Module{
+class Payohmkt extends Module{
 	
 	protected $_current_wallet = null;
 	protected $_lw_module;
 	
 	public function __construct()
 	{
-		$this->name = 'lemonwaymkt';
+		$this->name = 'payohmkt';
 		$this->tab = 'payments_gateways';
 		$this->version = '1.1.2';
 		$this->author = 'SIRATECK';
 		$this->need_instance = 0;
-		$this->dependencies = array('lemonway','marketplace');
+		$this->dependencies = array('payoh','marketplace');
 		
-		$this->_lw_module = Module::getInstanceByName('lemonway');
+		$this->_lw_module = Module::getInstanceByName('payoh');
 	
 		/**
 		 * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
@@ -31,8 +31,8 @@ class Lemonwaymkt extends Module{
 	
 		parent::__construct();
 	
-		$this->displayName = $this->l('Lemonway Marketplace');
-		$this->description = $this->l('It\'s adaptive Lemonway payment for marketplace module from Webkul');
+		$this->displayName = $this->l('Payoh Marketplace');
+		$this->description = $this->l('It\'s adaptive Payoh payment for marketplace module from Webkul');
 	
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall my module? You will be loose your datas !');
 
@@ -55,16 +55,16 @@ class Lemonwaymkt extends Module{
 		}
 	
 		//Mkt CONFIGURATION
-		Configuration::updateValue('LEMONWAYMKT_WALLET_AUTO_CREATE', 1);
-		Configuration::updateValue('LEMONWAYMKT_AUTO_DISPATCH', 1);
-		Configuration::updateValue('LEMONWAY_COMMISSION_AMOUNT', 0.00);
-		Configuration::updateValue('LEMONWAY_IS_AUTO_COMMISSION', 1);
+		Configuration::updateValue('PAYOHMKT_WALLET_AUTO_CREATE', 1);
+		Configuration::updateValue('PAYOHMKT_AUTO_DISPATCH', 1);
+		Configuration::updateValue('PAYOH_COMMISSION_AMOUNT', 0.00);
+		Configuration::updateValue('PAYOH_IS_AUTO_COMMISSION', 1);
 		
 		include(dirname(__FILE__).'/sql/install.php');
 		
 		$translationsAdminWalletTransactions = array('en'=>'Wallet transaction','fr'=>'Transactions wallets vendeurs');
 		
-		$adminLemonwayId = Db::getInstance()->getValue("SELECT `id_tab` FROM "._DB_PREFIX_."tab WHERE `class_name`='AdminLemonway'");
+		$adminPayohId = Db::getInstance()->getValue("SELECT `id_tab` FROM "._DB_PREFIX_."tab WHERE `class_name`='AdminPayoh'");
 		
 		return parent::install() &&
 			$this->registerHook('displayMpMyAccountMenuActiveSeller') &&
@@ -72,17 +72,17 @@ class Lemonwaymkt extends Module{
 			$this->registerHook('actionObjectSellerInfoDetailAddAfter') &&
 			$this->registerHook('actionSellerProfileStatus') &&
 			$this->registerHook('actionValidateOrder') &&
-			$this->_lw_module->installModuleTab('AdminWalletTransaction', $translationsAdminWalletTransactions, $adminLemonwayId,$this->name);
+			$this->_lw_module->installModuleTab('AdminWalletTransaction', $translationsAdminWalletTransactions, $adminPayohId,$this->name);
 		
 	}
 	
 	public function uninstall()
 	{
 		//API CONFIGURATION
-		Configuration::deleteByName('LEMONWAYMKT_WALLET_AUTO_CREATE');
-		Configuration::deleteByName('LEMONWAYMKT_AUTO_DISPATCH');
-		Configuration::deleteByName('LEMONWAY_COMMISSION_AMOUNT');
-		Configuration::deleteByName('LEMONWAY_IS_AUTO_COMMISSION');
+		Configuration::deleteByName('PAYOHMKT_WALLET_AUTO_CREATE');
+		Configuration::deleteByName('PAYOHMKT_AUTO_DISPATCH');
+		Configuration::deleteByName('PAYOH_COMMISSION_AMOUNT');
+		Configuration::deleteByName('PAYOH_IS_AUTO_COMMISSION');
 		
 		$this->_lw_module->uninstallModuleTab('AdminWalletTransaction');
 		
@@ -97,7 +97,7 @@ class Lemonwaymkt extends Module{
 		/**
 		 * If values have been submitted in the form, process.
 		 */
-		if (((bool)Tools::isSubmit('submitLemonwaymktModule')) == true) {
+		if (((bool)Tools::isSubmit('submitPayohmktModule')) == true) {
 			$this->postProcess();
 		}
 	
@@ -118,7 +118,7 @@ class Lemonwaymkt extends Module{
 		$helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
 	
 		$helper->identifier = $this->identifier;
-		$helper->submit_action = 'submitLemonwaymktModule';
+		$helper->submit_action = 'submitPayohmktModule';
 		$helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
 		.'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
 		$helper->token = Tools::getAdminTokenLite('AdminModules');
@@ -153,7 +153,7 @@ class Lemonwaymkt extends Module{
 		$container['form']['input'][] = array(
 				'type' => 'switch',
 				'label' => $this->l('Auto commission'),
-				'name' => 'LEMONWAY_IS_AUTO_COMMISSION',
+				'name' => 'PAYOH_IS_AUTO_COMMISSION',
 				'is_bool' => true,
 				'desc' => $this->l('If No you must fill field Commission amount below.'),
 				'values' => array(
@@ -173,7 +173,7 @@ class Lemonwaymkt extends Module{
 		$container['form']['input'][] = array(
 				'col' => 3,
 				'label' => $this->l('Comission amount'),
-				'name' => 'LEMONWAY_COMMISSION_AMOUNT',
+				'name' => 'PAYOH_COMMISSION_AMOUNT',
 				'type' => 'text',
 				'prefix' => '<i class="icon icon-eur"></i>',
 				'is_number' => true,
@@ -184,7 +184,7 @@ class Lemonwaymkt extends Module{
 		$container['form']['input'][] = array(
 				'type' => 'switch',
 				'label' => $this->l('Wallet auto creation'),
-				'name' => 'LEMONWAYMKT_WALLET_AUTO_CREATE',
+				'name' => 'PAYOHMKT_WALLET_AUTO_CREATE',
 				'is_bool' => true,
 				'desc' => $this->l('If you choose No your vendors must create it manually.'),
 				'values' => array(
@@ -204,7 +204,7 @@ class Lemonwaymkt extends Module{
 		/*$container['form']['input'][] = array(
 				'type' => 'switch',
 				'label' => $this->l('Auto money dispatch'),
-				'name' => 'LEMONWAYMKT_AUTO_DISPATCH',
+				'name' => 'PAYOHMKT_AUTO_DISPATCH',
 				'is_bool' => true,
 				'desc' => $this->l('If you choose No you will be do that manually.'),
 				'values' => array(
@@ -224,7 +224,7 @@ class Lemonwaymkt extends Module{
 		$container['form']['input'][] = array(
 				'col' => 3,
 				'label' => $this->l('Comission amount'),
-				'name' => 'LEMONWAY_COMMISSION_AMOUNT',
+				'name' => 'PAYOH_COMMISSION_AMOUNT',
 				'type' => 'text',
 				'prefix' => '<i class="icon icon-eur"></i>',
 				'is_number' => true,
@@ -244,10 +244,10 @@ class Lemonwaymkt extends Module{
 	protected function getConfigFormValues()
 	{
 		return array(
-				'LEMONWAY_IS_AUTO_COMMISSION' => Configuration::get('LEMONWAY_IS_AUTO_COMMISSION', null),
-				'LEMONWAY_COMMISSION_AMOUNT' => Configuration::get('LEMONWAY_COMMISSION_AMOUNT', null),
-				'LEMONWAYMKT_WALLET_AUTO_CREATE' => Configuration::get('LEMONWAYMKT_WALLET_AUTO_CREATE', null),
-				'LEMONWAYMKT_AUTO_DISPATCH' => Configuration::get('LEMONWAYMKT_AUTO_DISPATCH', null),
+				'PAYOH_IS_AUTO_COMMISSION' => Configuration::get('PAYOH_IS_AUTO_COMMISSION', null),
+				'PAYOH_COMMISSION_AMOUNT' => Configuration::get('PAYOH_COMMISSION_AMOUNT', null),
+				'PAYOHMKT_WALLET_AUTO_CREATE' => Configuration::get('PAYOHMKT_WALLET_AUTO_CREATE', null),
+				'PAYOHMKT_AUTO_DISPATCH' => Configuration::get('PAYOHMKT_AUTO_DISPATCH', null),
 		);
 	}
 	
@@ -259,7 +259,7 @@ class Lemonwaymkt extends Module{
 		$form_values = $this->getConfigFormValues();
 	
 		foreach (array_keys($form_values) as $key) {
-			if ($key == 'LEMONWAYMKT_AUTO_DISPATCH') {
+			if ($key == 'PAYOHMKT_AUTO_DISPATCH') {
 				continue;
 			}
 			Configuration::updateValue($key, Tools::getValue($key));
@@ -320,7 +320,7 @@ class Lemonwaymkt extends Module{
 		$wallet->is_default = true;
 		$wallet->id_customer = $customer->id;
 		
-		$kit = new LemonWayKit();
+		$kit = new PayohKit();
 		$params = array();
 		
 		$params['wallet'] = "wallet-" .$seller_id. "-" . $customer->id;
@@ -415,7 +415,7 @@ class Lemonwaymkt extends Module{
 		$wallet_obj = new WalletCore();
 		$walletExist = $wallet_obj->getByCustomerId($customer_id);
 		
-		if($obj->is_seller && !$walletExist && (bool)Configuration::get('LEMONWAYMKT_WALLET_AUTO_CREATE') === true ) {
+		if($obj->is_seller && !$walletExist && (bool)Configuration::get('PAYOHMKT_WALLET_AUTO_CREATE') === true ) {
 			try {
 		
 				$this->registerWallet(new Customer($customer_id), $obj->id);
@@ -437,7 +437,7 @@ class Lemonwaymkt extends Module{
 		
 		$walletExist = $wallet_obj->getByCustomerId($obj->id_customer);
 		
-		if($mk_customer['is_seller'] && !$walletExist && (bool)Configuration::get('LEMONWAYMKT_WALLET_AUTO_CREATE') === true ) {
+		if($mk_customer['is_seller'] && !$walletExist && (bool)Configuration::get('PAYOHMKT_WALLET_AUTO_CREATE') === true ) {
 			try {
 				$this->registerWallet(new Customer($mk_customer['id_customer']), $params['mp_id_seller']);
 			} catch (Exception $e) {
@@ -461,10 +461,10 @@ class Lemonwaymkt extends Module{
 		$id_order = $order->id;
 		$order_status = $params['orderStatus'];
 		
-		if(Tools::strtolower($order->module) != 'lemonway')
+		if(Tools::strtolower($order->module) != 'payoh')
 			return ;
 		
-		if($order_status->id != Configuration::get('PS_OS_PAYMENT') && $order_status->id != Configuration::get('LEMONWAY_PENDING_OS') ){
+		if($order_status->id != Configuration::get('PS_OS_PAYMENT') && $order_status->id != Configuration::get('PAYOH_PENDING_OS') ){
 			return ;
 		}
 
@@ -530,7 +530,7 @@ class Lemonwaymkt extends Module{
         				$wallet_transac->seller_id = $product['marketplace_seller_id'];
         				$wallet_transac->shop_name = $product['shop_name'];
         				$wallet_transac->credit_wallet = $wallet ? $wallet->id_lw_wallet : "none";
-        				$wallet_transac->debit_wallet = LemonWayConfig::getWalletMerchantId();
+        				$wallet_transac->debit_wallet = PayohConfig::getWalletMerchantId();
         				$wallet_transac->admin_commission = $admin_commission;
         				$wallet_transac->amount_to_pay = $seller_amt;
         				$wallet_transac->amount_total = $admin_commission + $seller_amt;
@@ -557,7 +557,7 @@ class Lemonwaymkt extends Module{
         	
         	//$total_admin_commission = 0;
         	$total_seller_amt = 0;
-        	$kit = new LemonWayKit();
+        	$kit = new PayohKit();
         	
         	foreach ($transactions as $customer_id=>$w_transac) {
         		//Save with default status "to pay" before call LW service
@@ -571,7 +571,7 @@ class Lemonwaymkt extends Module{
         	
         			//Call send Payment method if config is auto dispatch
         			//Check conf auto dispatch and Check status order and if it's valid order we do send payment
-        			if(Configuration::get('LEMONWAYMKT_AUTO_DISPATCH')) {
+        			if(Configuration::get('PAYOHMKT_AUTO_DISPATCH')) {
         						
 	        			
 	        			
@@ -613,7 +613,7 @@ class Lemonwaymkt extends Module{
         			
         		}
         		elseif($w_transac->credit_wallet == 'none'){
-        			Logger::AddLog(sprintf($this->l("Transaction not sended to Lemonway because shop: %s no has wallet !"), $w_transac->shop_name), 1, null, null, true);
+        			Logger::AddLog(sprintf($this->l("Transaction not sended to Payoh because shop: %s no has wallet !"), $w_transac->shop_name), 1, null, null, true);
         		}
         		else{
         			Logger::AddLog($this->l("Transaction not saved!"), 1, null, null, true);
