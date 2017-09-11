@@ -26,7 +26,7 @@
 
 $sql = array();
 
-$sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."lemonwaymkt_wallet_transaction` (
+$sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."payohmkt_wallet_transaction` (
   `id_transaction` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Transaction ID',
   `id_order` int(11) NOT NULL COMMENT 'Real Order ID',
   `id_customer` int(11) NOT NULL COMMENT 'Customer ID',
@@ -37,7 +37,7 @@ $sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."lemonwaymkt_wallet_transact
   `admin_commission` decimal(20,6) NOT NULL COMMENT 'Total amount to pay',
   `lw_commission` decimal(20,6) DEFAULT 0 COMMENT 'LW commission returned after send payment',
   `status` smallint(2) NOT NULL DEFAULT 0 COMMENT 'Transaction Status',
-  `lw_id_send_payment` varchar(255) COMMENT 'Send payment Lemonway ID',
+  `lw_id_send_payment` varchar(255) COMMENT 'Send payment Payoh ID',
   `debit_wallet` varchar(255) DEFAULT NULL COMMENT 'Wallet debtor',
   `credit_wallet` varchar(255) DEFAULT NULL COMMENT 'Wallet creditor',
   `date_add` datetime NOT NULL COMMENT 'Wallet Creation Time',

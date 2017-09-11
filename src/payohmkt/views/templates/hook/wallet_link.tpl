@@ -1,15 +1,15 @@
 {if $mpmenu==0}
 	<li>
-		<a title="{l s='Lemonway payment' mod='lemonwaymkt'}" href="{$link->getModuleLink('lemonwaymkt', 'wallet')|escape:'html':'UTF-8'}" title="{l s='Lemonway payment' mod='lemonwaymkt'}">
+		<a title="{l s='Payoh payment' mod='payohmkt'}" href="{$link->getModuleLink('payohmkt', 'wallet')|escape:'html':'UTF-8'}" title="{l s='Payoh payment' mod='payohmkt'}">
 			<i class="icon-money"></i>
-			<span>{l s='Lemonway payment' mod='lemonwaymkt'}</span>
+			<span>{l s='Payoh payment' mod='payohmkt'}</span>
 		</a>
 	</li>
 {else}
-	<li {if $logic=='lemonwaymkt_wallet'}class="menu_active"{/if}>
+	<li {if $logic=='payohmkt_wallet'}class="menu_active"{/if}>
 		<span>
-			<a title="{l s='Lemonway payment' mod='lemonwaymkt'}" href="{$link->getModuleLink('lemonwaymkt', 'wallet')|escape:'html':'UTF-8'}">
-				{l s='Lemonway payment' mod='lemonwaymkt'}
+			<a title="{l s='Payoh payment' mod='payohmkt'}" href="{$link->getModuleLink('payohmkt', 'wallet')|escape:'html':'UTF-8'}">
+				{l s='Payoh payment' mod='payohmkt'}
 			</a>
 		</span>
 	</li>
