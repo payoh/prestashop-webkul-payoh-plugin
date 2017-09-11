@@ -30,7 +30,7 @@ class WalletTransaction extends ObjectModel{
 	 * @see ObjectModel::$definition
 	 */
 	public static $definition = array(
-			'table' => 'lemonwaymkt_wallet_transaction',
+			'table' => 'payohmkt_wallet_transaction',
 			'primary' => 'id_transaction',
 			'multilang' => false,
 			'multilang_shop' => false,
@@ -56,7 +56,7 @@ class WalletTransaction extends ObjectModel{
 	
 	public function getByOrderForCustomer($id_order,$id_customer){
 	
-		$query = 'SELECT * FROM `'._DB_PREFIX_.'lemonwaymkt_wallet_transaction` lw WHERE lw.`id_order` = '.(int)$id_order.' AND lw.`id_customer` = '.(int)$id_customer;
+		$query = 'SELECT * FROM `'._DB_PREFIX_.'payohmkt_wallet_transaction` lw WHERE lw.`id_order` = '.(int)$id_order.' AND lw.`id_customer` = '.(int)$id_customer;
 		$result = Db::getInstance()->getRow($query);
 	
 		if (!$result) {

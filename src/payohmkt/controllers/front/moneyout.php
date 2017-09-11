@@ -1,10 +1,10 @@
 <?php
 
-require_once _PS_MODULE_DIR_.'lemonway/classes/MoneyOut.php';
-require_once _PS_MODULE_DIR_.'lemonway/classes/Wallet.php';
-require_once _PS_MODULE_DIR_.'lemonway/classes/Iban.php';
-require_once _PS_MODULE_DIR_.'lemonway/services/LemonWayKit.php';
-class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
+require_once _PS_MODULE_DIR_.'payoh/classes/MoneyOut.php';
+require_once _PS_MODULE_DIR_.'payoh/classes/Wallet.php';
+require_once _PS_MODULE_DIR_.'payoh/classes/Iban.php';
+require_once _PS_MODULE_DIR_.'payoh/services/PayohKit.php';
+class PayohmktMoneyoutModuleFrontController extends ModuleFrontController
 {
 	public $auth = true;
 	//public $php_self = 'iban';
@@ -21,7 +21,7 @@ class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
 	{
 		$link = new Link();
 		
-		/* @var $this->module Lemonwaymkt */
+		/* @var $this->module Payohmkt */
 		
 		$this->moneyout = new Moneyout();
 
@@ -44,8 +44,8 @@ class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
 			$this->context->smarty->assign('ibans', $ibans);
 			
 			try {
-				$lemonway = $this->module->getBaseModule();
-				$res = $lemonway->getwalletDetails($wallet->id_lw_wallet);
+				$payoh = $this->module->getBaseModule();
+				$res = $payoh->getwalletDetails($wallet->id_lw_wallet);
 			
 				if(isset($res->lwError))
 				{
@@ -55,7 +55,7 @@ class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
 				else{
 					$bal = (float)$res->wallet->BAL;
 					$this->context->smarty->assign('bal', $bal);
-					$statues = Lemonway::$statuesLabel;
+					$statues = Payoh::$statuesLabel;
 					$statusLbl = isset($statues[trim($res->wallet->STATUS)]) ?  $statues[trim($res->wallet->STATUS)] : "N/A";
 					$this->context->smarty->assign('status', $statusLbl);
 				}
@@ -139,19 +139,19 @@ class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
 				$params = array(
 						"wallet" => $this->moneyout->id_lw_wallet,
 						"amountTot" => $this->moneyout->amount_to_pay,
-						'amountCom' => number_format((float)Configuration::get('LEMONWAY_COMMISSION_AMOUNT'), 2, '.', ''),
+						'amountCom' => number_format((float)Configuration::get('PAYOH_COMMISSION_AMOUNT'), 2, '.', ''),
 						"message" => Configuration::get('PS_SHOP_NAME') . " - " . sprintf($this->module->l("Moneyout of %s %s initiated by %s"),
                                                                                                         $this->moneyout->amount_to_pay,
 																										$this->context->currency->sign,
 																										$shop_name
 						),
 						"ibanId" => $this->moneyout->id_lw_iban,
-						"autCommission" => Configuration::get('LEMONWAY_IS_AUTO_COMMISSION'),
+						"autCommission" => Configuration::get('PAYOH_IS_AUTO_COMMISSION'),
 				);
 
 
 				//Init APi kit
-				$kit = new LemonWayKit();
+				$kit = new PayohKit();
 				$apiResponse = $kit->MoneyOut($params);
 			
 				if($apiResponse->lwError)
@@ -231,7 +231,7 @@ class LemonwaymktMoneyoutModuleFrontController extends ModuleFrontController
 		else
 			Tools::redirect($link->getPageLink('my-account'));
 		
-		$this->context->smarty->assign('logic', 'lemonwaymkt_wallet');
+		$this->context->smarty->assign('logic', 'payohmkt_wallet');
 		$this->context->smarty->assign("title_bg_color", Configuration::get('MP_TITLE_BG_COLOR'));
 		$this->context->smarty->assign("title_text_color", Configuration::get('MP_TITLE_TEXT_COLOR'));
 	}

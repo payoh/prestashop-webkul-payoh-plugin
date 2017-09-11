@@ -8,7 +8,7 @@ class AdminWalletTransactionController extends ModuleAdminController{
 	{
 		
 		$this->bootstrap = true;
-		$this->table = 'lemonwaymkt_wallet_transaction';
+		$this->table = 'payohmkt_wallet_transaction';
 		$this->identifier = 'id_transaction';
 		$this->className = 'WalletTransaction';
 		$this->lang = false;
@@ -24,7 +24,7 @@ class AdminWalletTransactionController extends ModuleAdminController{
 		$this->_select = '
 				a.*,
 				CONCAT(LEFT(c.`firstname`, 1), \'. \', c.`lastname`) AS `customer`';//,
-				//FROM `'._DB_PREFIX_.'lemonway_moneyout` mo';
+				//FROM `'._DB_PREFIX_.'payoh_moneyout` mo';
 		
 		$this->_join = '
 				LEFT JOIN `'._DB_PREFIX_.'customer` c ON (c.`id_customer` = a.`id_customer`)

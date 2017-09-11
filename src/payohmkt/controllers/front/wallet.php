@@ -1,14 +1,14 @@
 <?php
 require_once _PS_MODULE_DIR_ . 'marketplace/classes/MarketplaceCustomer.php';
-require_once _PS_MODULE_DIR_ . 'lemonway/classes/Wallet.php';
-require_once _PS_MODULE_DIR_ . 'lemonway/classes/Iban.php';
-require_once _PS_MODULE_DIR_ . 'lemonway/classes/MoneyOut.php';
-require_once _PS_MODULE_DIR_ . 'lemonway/lemonway.php';
+require_once _PS_MODULE_DIR_ . 'payoh/classes/Wallet.php';
+require_once _PS_MODULE_DIR_ . 'payoh/classes/Iban.php';
+require_once _PS_MODULE_DIR_ . 'payoh/classes/MoneyOut.php';
+require_once _PS_MODULE_DIR_ . 'payoh/payoh.php';
 
-class LemonwaymktWalletModuleFrontController extends ModuleFrontController
+class PayohmktWalletModuleFrontController extends ModuleFrontController
 {
 	public $auth = true;
-	//public $php_self = 'lemonwaymkt_wallet';
+	//public $php_self = 'payohmkt_wallet';
 	public $ssl = true;
 	
 	protected $wallet;
@@ -18,7 +18,7 @@ class LemonwaymktWalletModuleFrontController extends ModuleFrontController
 	 */
 	public function postProcess()
 	{
-		/* @var $this->module Lemonwaymkt */
+		/* @var $this->module Payohmkt */
 		
 		$has_wallet = false;
 		
@@ -74,7 +74,7 @@ class LemonwaymktWalletModuleFrontController extends ModuleFrontController
 							'buffer'=>base64_encode($file['content']),
 					);
 					
-					$kit = new LemonWayKit();
+					$kit = new PayohKit();
 					try {
 						
 						$res = $kit->UploadFile($params);
@@ -108,8 +108,8 @@ class LemonwaymktWalletModuleFrontController extends ModuleFrontController
 		{
 			//get variables datas
 			try {
-				$lemonway = Module::getInstanceByName('lemonway');
-				$res = $lemonway->getwalletDetails($wallet->id_lw_wallet);
+				$payoh = Module::getInstanceByName('payoh');
+				$res = $payoh->getwalletDetails($wallet->id_lw_wallet);
 				
 				if(isset($res->lwError))
 				{
@@ -118,7 +118,7 @@ class LemonwaymktWalletModuleFrontController extends ModuleFrontController
 				}
 				else{
 					$this->context->smarty->assign('bal', (float)$res->wallet->BAL);
-					$statues = Lemonway::$statuesLabel;
+					$statues = Payoh::$statuesLabel;
 					$statusLbl = isset($statues[trim($res->wallet->STATUS)]) ?  $statues[trim($res->wallet->STATUS)] : "N/A";
 					$this->context->smarty->assign('status', $statusLbl);
 					$badge_status = '-success';
@@ -167,7 +167,7 @@ class LemonwaymktWalletModuleFrontController extends ModuleFrontController
 				$is_seller = $mp_customer_info['is_seller'];
 				if ($is_seller == 1)
 				{
-					$this->context->smarty->assign('logic', 'lemonwaymkt_wallet');
+					$this->context->smarty->assign('logic', 'payohmkt_wallet');
 					$this->context->smarty->assign("title_bg_color", Configuration::get('MP_TITLE_BG_COLOR'));
 					$this->context->smarty->assign("title_text_color", Configuration::get('MP_TITLE_TEXT_COLOR'));
 	

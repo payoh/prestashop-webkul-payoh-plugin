@@ -1,8 +1,8 @@
 <?php
 
-require_once _PS_MODULE_DIR_.'lemonway/classes/Iban.php';
-require_once _PS_MODULE_DIR_.'lemonway/classes/Wallet.php';
-class LemonwaymktIbanModuleFrontController extends ModuleFrontController
+require_once _PS_MODULE_DIR_.'payoh/classes/Iban.php';
+require_once _PS_MODULE_DIR_.'payoh/classes/Wallet.php';
+class PayohmktIbanModuleFrontController extends ModuleFrontController
 {
 	public $auth = true;
 	//public $php_self = 'iban';
@@ -17,7 +17,7 @@ class LemonwaymktIbanModuleFrontController extends ModuleFrontController
 	 */
 	public function postProcess()
 	{
-		/* @var $this->module Lemonwaymkt */
+		/* @var $this->module Payohmkt */
 		
 		$this->iban = new IbanCore();
 		
@@ -51,7 +51,7 @@ class LemonwaymktIbanModuleFrontController extends ModuleFrontController
 								'dom2'		=>	$this->iban->dom2,
 						);
 						
-						$kit = new LemonWayKit();
+						$kit = new PayohKit();
 						
 						$res = $kit->RegisterIBAN($params);
 						
@@ -128,7 +128,7 @@ class LemonwaymktIbanModuleFrontController extends ModuleFrontController
 		else
 			Tools::redirect($link->getPageLink('my-account'));
 		
-		$this->context->smarty->assign('logic', 'lemonwaymkt_wallet');
+		$this->context->smarty->assign('logic', 'payohmkt_wallet');
 		$this->context->smarty->assign("title_bg_color", Configuration::get('MP_TITLE_BG_COLOR'));
 		$this->context->smarty->assign("title_text_color", Configuration::get('MP_TITLE_TEXT_COLOR'));
 	}
